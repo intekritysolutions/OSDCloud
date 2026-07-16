@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <unattend xmlns="urn:schemas-microsoft-com:unattend" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State">
-	<!--https://schneegans.de/windows/unattend-generator/?LanguageMode=Unattended&UILanguage=en-US&Locale=en-US&Keyboard=00000409&GeoLocation=244&PEMode=Default&WindowsEditionMode=Firmware&ProcessorArchitecture=amd64&KeepSensitiveFiles=true&ComputerNameMode=Random&TimeZoneMode=Explicit&TimeZone=Pacific+Standard+Time&UserAccountMode=Unattended&AutoLogonMode=Builtin&BuiltinAdministratorPassword=OSDCloudD3pl0y1%21&ObscurePasswords=true&PasswordExpirationMode=Unlimited&LockoutMode=Disabled&HideFiles=Hidden&TaskbarSearch=Box&TaskbarIconsMode=Default&DisableWidgets=true&LeftTaskbar=true&HideTaskViewButton=true&StartTilesMode=Default&StartPinsMode=Empty&DisableFastStartup=true&HideEdgeFre=true&DeleteWindowsOld=true&EffectsMode=Default&DesktopIconsMode=Default&StartFoldersMode=Default&CoreIsolationMode=Enabled&WifiMode=Skip&ExpressSettings=DisableAll&LockKeysMode=Configure&CapsLockInitial=Off&CapsLockBehavior=Toggle&NumLockInitial=On&NumLockBehavior=Toggle&ScrollLockInitial=Off&ScrollLockBehavior=Toggle&StickyKeysMode=Disabled&ColorMode=Default&WallpaperMode=Default&LockScreenMode=Default&FirstLogonScript0=%24ProgressPreference+%3D+%27SilentlyContinue%27%0D%0A%0D%0A%23+Create+C%3A%5CTemp+if+it+doesn%27t+already+exist%0D%0A%24TempPath+%3D+%22C%3A%5CTemp%22%0D%0Aif+%28-not+%28Test-Path+%24TempPath%29%29+%7B%0D%0A++++New-Item+-Path+%24TempPath+-ItemType+Directory+-Force+%7C+Out-Null%0D%0A%7D%0D%0A%0D%0A%24InstallerPath+%3D+Join-Path+%24TempPath+%22NinjaOneAgent-x86.msi%22%0D%0A%0D%0A%23+Download+the+NinjaOne+agent+installer+to+C%3A%5CTemp%0D%0AInvoke-WebRequest+-Uri+%22https%3A%2F%2Fin-tekrity.rmmservices.net%2Fws%2Fapi%2Fv2%2Fgeneric-installer%2FNinjaOneAgent-x86.msi%22+-OutFile+%24InstallerPath%0D%0A%0D%0A%23+Run+the+installer+from+C%3A%5CTemp%0D%0Amsiexec.exe+-i+%24InstallerPath+TOKENID%3D%22c87e9b7c-35b9-48d1-bcf5-46c6b5a6708a%22&FirstLogonScriptType0=Ps1&FirstLogonScript1=%3C%23%0D%0A.SYNOPSIS%0D%0A++++Detects+Desktop+vs+Laptop+via+WMI%2FCIM%2C+then+renames+the+computer%3A%0D%0A++++MGE-DeviceType-Last7OfSerial++%28e.g.%2C+MGE-LT-1234567%29%0D%0A++++Runs+fully+unattended+%E2%80%94+no+prompts%2C+no+confirmations%2C+no+auto-restart.%0D%0A%0D%0A.NOTES%0D%0A++++Run+as+Administrator.+Requires+a+restart+%28handled+separately%29+to+apply+the+new+computer+name.%0D%0A++++Designed+for+RMM%2FZTI+deployment+%28NinjaOne%2C+N-central%2C+OSDCloud%2C+etc.%29%0D%0A%23%3E%0D%0A%0D%0A%23region+%2D%2D-+Config+%2D%2D-%0D%0A%24CompanyID+%3D+%22KIME%22%0D%0A%23endregion%0D%0A%0D%0A%23region+%2D%2D-+Get+Serial+Number+FIRST+%28bail+out+early+if+missing%29+%2D%2D-%0D%0Atry+%7B%0D%0A++++%24serial+%3D+%28Get-CimInstance+-ClassName+Win32_BIOS+-ErrorAction+Stop%29.SerialNumber%0D%0A%7D%0D%0Acatch+%7B%0D%0A++++throw+%22No+serial+number+found.+Unable+to+query+Win32_BIOS%3A+%24%28%24_.Exception.Message%29%22%0D%0A%7D%0D%0A%0D%0Aif+%28%5Bstring%5D%3A%3AIsNullOrWhiteSpace%28%24serial%29+-or+%24serial+-match+%27%5E%28To+Be+Filled+By+O.E.M.%7CNone%7CSystem+Serial+Number%7C0%2B%29%24%27%29+%7B%0D%0A++++throw+%22No+serial+number+found.+Computer+name+was+NOT+changed.%22%0D%0A%7D%0D%0A%0D%0A%24serialSuffix+%3D+if+%28%24serial.Length+-lt+7%29+%7B+%24serial+%7D+else+%7B+%24serial.Substring%28%24serial.Length+-+7%29+%7D%0D%0A%23endregion%0D%0A%0D%0A%23region+%2D%2D-+Detect+Desktop+vs+Laptop+%2D%2D-%0D%0Afunction+Get-DeviceType+%7B%0D%0A%0D%0A++++%24pcSystemType+%3D+%28Get-CimInstance+-ClassName+Win32_ComputerSystem+-ErrorAction+SilentlyContinue%29.PCSystemType%0D%0A++++%24chassisTypes+%3D+%28Get-CimInstance+-ClassName+Win32_SystemEnclosure+-ErrorAction+SilentlyContinue%29.ChassisTypes%0D%0A++++%24hasBattery+++%3D+%5Bbool%5D%28Get-CimInstance+-ClassName+Win32_Battery+-ErrorAction+SilentlyContinue%29%0D%0A%0D%0A++++%24laptopChassis+%3D+%40%288%2C+9%2C+10%2C+11%2C+12%2C+14%2C+18%2C+21%2C+30%2C+31%2C+32%29%0D%0A%0D%0A++++%24votes+%3D+%40%28%29%0D%0A%0D%0A++++if+%28%24pcSystemType+-eq+2%29+%7B+%24votes+%2B%3D+%22LT%22+%7D%0D%0A++++elseif+%28%24pcSystemType+-eq+1%29+%7B+%24votes+%2B%3D+%22DT%22+%7D%0D%0A%0D%0A++++if+%28%24chassisTypes%29+%7B%0D%0A++++++++%24match+%3D+%24chassisTypes+%7C+Where-Object+%7B+%24laptopChassis+-contains+%24_+%7D%0D%0A++++++++if+%28%24match%29+%7B+%24votes+%2B%3D+%22LT%22+%7D+else+%7B+%24votes+%2B%3D+%22DT%22+%7D%0D%0A++++%7D%0D%0A%0D%0A++++if+%28%24hasBattery%29+%7B+%24votes+%2B%3D+%22LT%22+%7D%0D%0A%0D%0A++++if+%28%24votes.Count+-eq+0%29+%7B%0D%0A++++++++return+%24null%0D%0A++++%7D%0D%0A%0D%0A++++%24ltCount+%3D+%28%24votes+%7C+Where-Object+%7B+%24_+-eq+%22LT%22+%7D%29.Count%0D%0A++++%24dtCount+%3D+%28%24votes+%7C+Where-Object+%7B+%24_+-eq+%22DT%22+%7D%29.Count%0D%0A%0D%0A++++if+%28%24ltCount+-ge+%24dtCount%29+%7B+return+%22LT%22+%7D+else+%7B+return+%22DT%22+%7D%0D%0A%7D%0D%0A%0D%0A%24deviceType+%3D+Get-DeviceType%0D%0A%0D%0Aif+%28-not+%24deviceType%29+%7B%0D%0A++++Write-Host+-ForegroundColor+Yellow+%22WARNING%3A+Could+not+automatically+determine+device+type.+Defaulting+to+DT+%28Desktop%29.%22%0D%0A++++%24deviceType+%3D+%22DT%22%0D%0A%7D%0D%0A%0D%0AWrite-Host+-ForegroundColor+Green+%22Detected+device+type%3A+%24deviceType%22%0D%0A%23endregion%0D%0A%0D%0A%23region+%2D%2D-+Build+and+Apply+New+Computer+Name+%2D%2D-%0D%0A%24newName+%3D+%22%24CompanyID-%24deviceType-%24serialSuffix%22%0D%0A%0D%0Aif+%28%24newName.Length+-gt+15%29+%7B%0D%0A++++Write-Host+-ForegroundColor+Yellow+%22Warning%3A+%27%24newName%27+exceeds+15+characters+and+may+not+be+NetBIOS-compatible.%22%0D%0A%7D%0D%0A%0D%0AWrite-Host+%22Current+computer+name%3A+%24env%3ACOMPUTERNAME%22%0D%0AWrite-Host+%22New+computer+name%3A+++++%24newName%22%0D%0A%0D%0Atry+%7B%0D%0A++++Rename-Computer+-NewName+%24newName+-Force+-ErrorAction+Stop%0D%0A++++Write-Host+-ForegroundColor+Green+%22Computer+renamed+to+%27%24newName%27+successfully.%22%0D%0A++++Write-Host+-ForegroundColor+Cyan+%22A+restart+is+required+for+the+change+to+take+effect+%28not+performed+by+this+script%29.%22%0D%0A%7D%0D%0Acatch+%7B%0D%0A++++throw+%22Failed+to+rename+computer%3A+%24%28%24_.Exception.Message%29%22%0D%0A%7D%0D%0A%23endregion%0D%0A%0D%0A%23region+%2D%2D-+Completion+Notice+%28Popup%29+%2D%2D-%0D%0Atry+%7B%0D%0A++++%24wshell+%3D+New-Object+-ComObject+WScript.Shell%0D%0A++++%24message+%3D+%22The+computer+has+been+renamed+to+%24newName.%60n%60nOSDCloud+has+finished+its+deployment+cycle.+You+may+reboot+to+apply+the+new+computer+name+immediately+or+sit+back+and+relax+while+RMM+completes+the+configuration+for+you.%60n%60nThank+you+for+your+patience+and+cooperation%2C+we+hope+you+enjoyed+the+Automation.%60n%60n-Much+Love%2C+InTekrity+Ops+Team%22%0D%0A%0D%0A++++%23+Popup+with+icon+%2864+%3D+Information%29+and+buttons+%280+%3D+OK+only%29%0D%0A++++%23+Timeout+of+60+seconds+%E2%80%94+auto-dismisses+so+it+never+blocks+unattended%2FRMM+execution+indefinitely%0D%0A++++%24wshell.Popup%28%24message%2C+60%2C+%22OSDCloud+-+Deployment+Completed%22%2C+64+%2B+0%29+%7C+Out-Null%0D%0A%7D%0D%0Acatch+%7B%0D%0A++++%23+Fallback+to+console+if+popup+fails+%28e.g.%2C+running+in+a+session+with+no+desktop+interaction%2C+like+some+SYSTEM+contexts%29%0D%0A++++Write-Host+-ForegroundColor+Cyan+%22The+computer+has+been+renamed+to+%24newName.%22%0D%0A++++Write-Host+-ForegroundColor+Cyan+%22OSDCloud+has+finished+its+deployment+cycle.+You+may+reboot+to+apply+the+new+computer+name+immediately+or+sit+back+and+relax+while+RMM+completes+the+configuration+for+you.%22%0D%0A++++Write-Host+-ForegroundColor+Cyan+%22Thank+you+for+your+patience+and+cooperation%2C+we+hoped+you+enjoyed+the+Automation+-Much+Love+InTekrity+Ops+Team%22%0D%0A%7D%0D%0A%23endregion%0D%0A%0D%0A%23region+%2D%2D-+Keep+Console+Window+Open+%2D%2D-%0D%0A%23+Failsafe+so+the+window+doesn%27t+vanish+the+instant+the+script+ends%2C+even+if+the%0D%0A%23+calling+process%2Ftask+would+otherwise+auto-close+it.+Only+runs+in+an+interactive+console.%0D%0Aif+%28%24Host.Name+-eq+%27ConsoleHost%27%29+%7B%0D%0A++++Write-Host+%22%22%0D%0A++++Write-Host+-ForegroundColor+Cyan+%22Press+Enter+to+close+this+window...%22%0D%0A++++Read-Host+%7C+Out-Null%0D%0A%7D%0D%0A%23endregion&FirstLogonScriptType1=Ps1&AppLockerMode=Skip-->
+	<!--https://schneegans.de/windows/unattend-generator/?LanguageMode=Unattended&UILanguage=en-US&Locale=en-US&Keyboard=00000409&GeoLocation=244&PEMode=Default&WindowsEditionMode=Firmware&ProcessorArchitecture=amd64&KeepSensitiveFiles=true&ComputerNameMode=Random&TimeZoneMode=Explicit&TimeZone=Pacific+Standard+Time&UserAccountMode=Unattended&AutoLogonMode=Builtin&BuiltinAdministratorPassword=OSDCloudD3pl0y1%21&ObscurePasswords=true&PasswordExpirationMode=Unlimited&LockoutMode=Disabled&HideFiles=Hidden&TaskbarSearch=Box&TaskbarIconsMode=Default&DisableWidgets=true&LeftTaskbar=true&HideTaskViewButton=true&StartTilesMode=Default&StartPinsMode=Empty&DisableFastStartup=true&HideEdgeFre=true&DeleteWindowsOld=true&EffectsMode=Default&DesktopIconsMode=Default&StartFoldersMode=Default&CoreIsolationMode=Enabled&WifiMode=Skip&ExpressSettings=DisableAll&LockKeysMode=Configure&CapsLockInitial=Off&CapsLockBehavior=Toggle&NumLockInitial=On&NumLockBehavior=Toggle&ScrollLockInitial=Off&ScrollLockBehavior=Toggle&StickyKeysMode=Disabled&ColorMode=Default&WallpaperMode=Default&LockScreenMode=Default&FirstLogonScript0=%24ProgressPreference+%3D+%27SilentlyContinue%27%0D%0AInvoke-WebRequest+-Uri+%22https%3A%2F%2Fin-tekrity.rmmservices.net%2Fws%2Fapi%2Fv2%2Fgeneric-installer%2FNinjaOneAgent-x86.msi%22+-OutFile+%22.%5CNinjaOneAgent-x86.msi%22%0D%0Amsiexec.exe+-i+NinjaOneAgent-x86.msi+TOKENID%3D%22c87e9b7c-35b9-48d1-bcf5-46c6b5a6708a%22&FirstLogonScriptType0=Ps1&FirstLogonScript1=%0D%0AClaude+finished+the+response%0D%0Acreate+a+catchy+word+doc+that+says+ATTENTION%21+%0D%0A%0D%0AAs+of+today+MDT+has+been+disabled.+For+OSD+deployments+we+will+now+be+using+OSDCloud.%0D%0A%0D%0APress+F12+to+boot+into+network+boot+and+select+OSDCloud+-+Production.+Once+selected+you+will+receive+a+powershell+prompt+to+select+the+CompanyID+of+the+device+you+are+imaging.+If+there+is+no+CompanyID%2C+then+type+Z+and+hit+Enter.+Press+enter+again+confirming+that+the+fixed+disks+on+the+device+will+be+erased.%0D%0A%0D%0AAfter+you+start+the+process+OSDCloud+will+download+the+latest+Windows+11+25H2+installer%2C+identify+the+device+you+are+on+and+download%2Finstall+the+Drivers+for+your+device+as+well+as+apply+the+latest+patches.%0D%0A%0D%0AOnce+the+deployment+process+is+completed+the+device+will+reboot+and+login+to+Windows.+After+the+windows+log+in+completes+OSDCloud+will+wrap+up+by+renaming+the+computer+and+deploying+the+RMM+agent.+Your+device+name+will+rename+itself+upon+reboot.%0D%0A%0D%0ARMM+should+create+a+local+admin+account+depending+on+the+CompanyID+selected.+If+there+are+issues+and+a+local+admin+account+is+not+created+you+can+temporarily+use+the+Built-In+Administrator+account+using+the+credentials+below.%0D%0A%0D%0AUsername+-+Administrator%0D%0APassword+-+OSDCloudD3pl0y1%21%0D%0A%0D%0AYOU+NEED+TO+CREATE+A+LOCAL+ADMIN+ACCOUNT+AND+DISABLE+THE+BUILT+IN+ADMIN+ACCOUNT+BEFORE+THE+DEVICE+GOES+INTO+PRODUCTION%2FUSE.%0D%0A%0D%0AShow+more%0D%0A%0D%0AAssessed+document+formatting+capability+for+technical+content%0D%0AAssessed+document+formatting+capability+for+technical+content%0D%0AThat+number+badges+are+stretched+a+bit+oddly+but+overall+it+looks+clean+%E2%80%94+let+me+check+page+2+before+finalizing.%0D%0A%0D%0A%0D%0ACheck+rendered+page+2%0D%0ACheck+rendered+page+2%0D%0AGood%2C+it+splits+cleanly+%28the+pink+credentials+box+just+spills+onto+page+2%2C+which+is+fine%29.+Copying+to+outputs+now.%0D%0A%0D%0A%0D%0ARan+a+command%2C+read+a+file%0D%0ARan+a+command%2C+read+a+file%0D%0AHere%27s+the+announcement+doc+%E2%80%94+big+red+ATTENTION+banner+up+top%2C+numbered+step+blocks+walking+through+the+OSDCloud+deployment+process%2C+a+highlighted+box+for+the+fallback+Administrator+credentials%2C+and+a+bold+black+%22required+before+production+use%22+warning+at+the+bottom.%0D%0A%0D%0A%0D%0AOsdcloud+deployment+announcement%0D%0ADocument+%C2%B7+DOCX+%0D%0ACan+you+fit+this+on+a+single+page%3F%0D%0A%0D%0A%0D%0AStrategized+layout+compression+through+spacing+and+font+adjustments%0D%0AStrategized+layout+compression+through+spacing+and+font+adjustments%0D%0ANow+let+me+tighten+spacing+throughout+%E2%80%94+banner%2C+headers%2C+step+blocks%2C+and+font+sizes.%0D%0A%0D%0A%0D%0ARan+2+commands%0D%0ARan+2+commands%0D%0ANow+let%27s+tighten+the+step+blocks+%28title%2Fbody+font+sizes+and+spacing%29+and+bodyPara%2FcodeRun+sizes.%0D%0A%0D%0A%0D%0ATighten+step+block+fonts+and+spacing%0D%0ATighten+step+block+fonts+and+spacing%0D%0ANow+the+bullet+list+items%2C+note+paragraph%2C+and+the+local+admin+credentials+box+%2F+final+warning+box.%0D%0A%0D%0A%0D%0ARan+2+commands%0D%0ARan+2+commands%0D%0ANow+the+final+warning+banner+and+the+spacer+paragraph+before+it.%0D%0A%0D%0A%0D%0ATighten+final+warning+banner%0D%0ATighten+final+warning+banner%0D%0AAlso+tighten+the+%22RMM+should+automatically...%22+bodyPara+before+the+credentials+box%2C+and+step+body+texts+sizes+for+step+2%2F3.%0D%0A%0D%0A%0D%0ARan+2+commands%0D%0ARan+2+commands%0D%0ASingle+page+now.+Let%27s+view+it+to+check+the+layout+looks+good.%0D%0A%0D%0A%0D%0ACheck+the+single-page+rendered+document%0D%0ACheck+the+single-page+rendered+document%0D%0AIt+fits+neatly+on+a+single+page+now%2C+with+everything+still+readable.+Copying+it+to+outputs.%0D%0A%0D%0A%0D%0ARan+a+command%2C+read+a+file%0D%0ARan+a+command%2C+read+a+file%0D%0AFits+on+one+page+now%2C+with+plenty+of+room+to+spare.%0D%0A%0D%0A%0D%0AOsdcloud+deployment+announcement%0D%0ADocument+%C2%B7+DOCX+%0D%0AWhen+i+run+the+script+it+closes+the+prompt+screen+and+leaves+the+powershell+windows+open.+I+want+it+to+show+the+prompt+screen+and+close+powershell+until+Ok+it+clicked%0D%0A%0D%0A%3C%23%0D%0A.SYNOPSIS%0D%0A++++Detects+Desktop+vs+Laptop+via+WMI%2FCIM%2C+then+renames+the+computer%3A%0D%0A++++MGE-DeviceType-Last7OfSerial++%28e.g.%2C+MGE-LT-1234567%29%0D%0A++++Runs+fully+unattended+%E2%80%94+no+prompts%2C+no+confirmations%2C+no+auto-restart.%0D%0A%0D%0A.NOTES%0D%0A++++Run+as+Administrator.+Requires+a+restart+%28handled+separately%29+to+apply+the+new+computer+name.%0D%0A++++Designed+for+RMM%2FZTI+deployment+%28NinjaOne%2C+N-central%2C+OSDCloud%2C+etc.%29%0D%0A%23%3E%0D%0A%0D%0A%23region+%2D%2D-+Config+%2D%2D-%0D%0A%24CompanyID+%3D+%22KIME%22%0D%0A%23endregion%0D%0A%0D%0A%23region+%2D%2D-+Get+Serial+Number+FIRST+%28bail+out+early+if+missing%29+%2D%2D-%0D%0Atry+%7B%0D%0A++++%24serial+%3D+%28Get-CimInstance+-ClassName+Win32_BIOS+-ErrorAction+Stop%29.SerialNumber%0D%0A%7D%0D%0Acatch+%7B%0D%0A++++throw+%22No+serial+number+found.+Unable+to+query+Win32_BIOS%3A+%24%28%24_.Exception.Message%29%22%0D%0A%7D%0D%0A%0D%0Aif+%28%5Bstring%5D%3A%3AIsNullOrWhiteSpace%28%24serial%29+-or+%24serial+-match+%27%5E%28To+Be+Filled+By+O.E.M.%7CNone%7CSystem+Serial+Number%7C0%2B%29%24%27%29+%7B%0D%0A++++throw+%22No+serial+number+found.+Computer+name+was+NOT+changed.%22%0D%0A%7D%0D%0A%0D%0A%24serialSuffix+%3D+if+%28%24serial.Length+-lt+7%29+%7B+%24serial+%7D+else+%7B+%24serial.Substring%28%24serial.Length+-+7%29+%7D%0D%0A%23endregion%0D%0A%0D%0A%23region+%2D%2D-+Detect+Desktop+vs+Laptop+%2D%2D-%0D%0Afunction+Get-DeviceType+%7B%0D%0A%0D%0A++++%24pcSystemType+%3D+%28Get-CimInstance+-ClassName+Win32_ComputerSystem+-ErrorAction+SilentlyContinue%29.PCSystemType%0D%0A++++%24chassisTypes+%3D+%28Get-CimInstance+-ClassName+Win32_SystemEnclosure+-ErrorAction+SilentlyContinue%29.ChassisTypes%0D%0A++++%24hasBattery+++%3D+%5Bbool%5D%28Get-CimInstance+-ClassName+Win32_Battery+-ErrorAction+SilentlyContinue%29%0D%0A%0D%0A++++%24laptopChassis+%3D+%40%288%2C+9%2C+10%2C+11%2C+12%2C+14%2C+18%2C+21%2C+30%2C+31%2C+32%29%0D%0A%0D%0A++++%24votes+%3D+%40%28%29%0D%0A%0D%0A++++if+%28%24pcSystemType+-eq+2%29+%7B+%24votes+%2B%3D+%22LT%22+%7D%0D%0A++++elseif+%28%24pcSystemType+-eq+1%29+%7B+%24votes+%2B%3D+%22DT%22+%7D%0D%0A%0D%0A++++if+%28%24chassisTypes%29+%7B%0D%0A++++++++%24match+%3D+%24chassisTypes+%7C+Where-Object+%7B+%24laptopChassis+-contains+%24_+%7D%0D%0A++++++++if+%28%24match%29+%7B+%24votes+%2B%3D+%22LT%22+%7D+else+%7B+%24votes+%2B%3D+%22DT%22+%7D%0D%0A++++%7D%0D%0A%0D%0A++++if+%28%24hasBattery%29+%7B+%24votes+%2B%3D+%22LT%22+%7D%0D%0A%0D%0A++++if+%28%24votes.Count+-eq+0%29+%7B%0D%0A++++++++return+%24null%0D%0A++++%7D%0D%0A%0D%0A++++%24ltCount+%3D+%28%24votes+%7C+Where-Object+%7B+%24_+-eq+%22LT%22+%7D%29.Count%0D%0A++++%24dtCount+%3D+%28%24votes+%7C+Where-Object+%7B+%24_+-eq+%22DT%22+%7D%29.Count%0D%0A%0D%0A++++if+%28%24ltCount+-ge+%24dtCount%29+%7B+return+%22LT%22+%7D+else+%7B+return+%22DT%22+%7D%0D%0A%7D%0D%0A%0D%0A%24deviceType+%3D+Get-DeviceType%0D%0A%0D%0Aif+%28-not+%24deviceType%29+%7B%0D%0A++++Write-Host+-ForegroundColor+Yellow+%22WARNING%3A+Could+not+automatically+determine+device+type.+Defaulting+to+DT+%28Desktop%29.%22%0D%0A++++%24deviceType+%3D+%22DT%22%0D%0A%7D%0D%0A%0D%0AWrite-Host+-ForegroundColor+Green+%22Detected+device+type%3A+%24deviceType%22%0D%0A%23endregion%0D%0A%0D%0A%23region+%2D%2D-+Build+and+Apply+New+Computer+Name+%2D%2D-%0D%0A%24newName+%3D+%22%24CompanyID-%24deviceType-%24serialSuffix%22%0D%0A%0D%0Aif+%28%24newName.Length+-gt+15%29+%7B%0D%0A++++Write-Host+-ForegroundColor+Yellow+%22Warning%3A+%27%24newName%27+exceeds+15+characters+and+may+not+be+NetBIOS-compatible.%22%0D%0A%7D%0D%0A%0D%0AWrite-Host+%22Current+computer+name%3A+%24env%3ACOMPUTERNAME%22%0D%0AWrite-Host+%22New+computer+name%3A+++++%24newName%22%0D%0A%0D%0Atry+%7B%0D%0A++++Rename-Computer+-NewName+%24newName+-Force+-ErrorAction+Stop%0D%0A++++Write-Host+-ForegroundColor+Green+%22Computer+renamed+to+%27%24newName%27+successfully.%22%0D%0A++++Write-Host+-ForegroundColor+Cyan+%22A+restart+is+required+for+the+change+to+take+effect+%28not+performed+by+this+script%29.%22%0D%0A%7D%0D%0Acatch+%7B%0D%0A++++throw+%22Failed+to+rename+computer%3A+%24%28%24_.Exception.Message%29%22%0D%0A%7D%0D%0A%23endregion%0D%0AShow+more%0D%0A%0D%0AArchitected+GUI+message+box+solution+with+hidden+console+window%0D%0AArchitected+GUI+message+box+solution+with+hidden+console+window%0D%0AHere%27s+the+updated+script+%E2%80%94+it+hides+the+PowerShell+console+window+immediately+on+launch%2C+does+all+the+work+silently+in+the+background%2C+then+shows+a+message+box+with+the+results.+The+window+won%27t+close+until+you+click+OK.%0D%0A%0D%0A%0D%0ARan+2+commands%2C+created+a+file%2C+read+a+file%0D%0ARan+2+commands%2C+created+a+file%2C+read+a+file%0D%0ATwo+changes+did+the+trick%3A%0D%0A%0D%0AConsole+hidden+immediately+%E2%80%94+a+small+GetConsoleWindow%2FShowWindow+P%2FInvoke+call+at+the+top+hides+the+PowerShell+window+as+soon+as+the+script+starts%2C+so+the+user+never+sees+the+console+flash.%0D%0AResult+shown+as+a+message+box%2C+not+console+output+%E2%80%94+every+Write-Host+status+message+is+now+rolled+into+a+single+System.Windows.Forms.MessageBox.+The+script+calls+exit+right+after+.Show%28%29+returns%2C+so+the+process+%28and+the+hidden+console%29+only+terminates+once+the+user+clicks+OK.%0D%0AA+couple+of+notes+on+behavior%3A%0D%0A%0D%0AErrors+%28missing+serial%2C+rename+failure%29+now+pop+their+own+message+box+with+an+error+icon+and+title+%22Rename+Failed%2C%22+instead+of+throwing+to+a+console+no+one+sees.%0D%0ASuccess+shows+old+name%2C+new+name%2C+device+type%2C+and+any+warnings+%28oversized+NetBIOS+name%2C+defaulted+device+type%29+all+in+one+dialog.%0D%0ASince+the+console+is+hidden+but+not+closed+until+exit%2C+if+you%27re+kicking+this+off+from+RMM+as+a+scheduled+task%2Fdeployment+step%2C+make+sure+whatever+launches+it+doesn%27t+itself+wait+synchronously+in+a+way+that+blocks+on+a+hidden+window+%E2%80%94+you+may+want+-WindowStyle+Hidden+on+the+invocation+too%2C+though+it%27s+technically+redundant+now.%0D%0A%0D%0ARename-Computer-Silent.ps1%0D%0A+%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0AClaude+is+AI+and+can+make+mistakes.+Please+double-check+responses.%0D%0A%3C%23%0D%0A.SYNOPSIS%0D%0A++++Detects+Desktop+vs+Laptop+via+WMI%2FCIM%2C+then+renames+the+computer%3A%0D%0A++++MGE-DeviceType-Last7OfSerial++%28e.g.%2C+MGE-LT-1234567%29%0D%0A++++Runs+unattended+in+the+background+%E2%80%94+console+window+is+hidden+%E2%80%94+and%0D%0A++++reports+the+result+in+a+message+box.+The+script+%28and+window%29+will+not%0D%0A++++exit+until+the+user+clicks+OK.%0D%0A+%0D%0A.NOTES%0D%0A++++Run+as+Administrator.+Requires+a+restart+%28handled+separately%29+to+apply+the+new+computer+name.%0D%0A++++Designed+for+RMM%2FZTI+deployment+%28NinjaOne%2C+N-central%2C+OSDCloud%2C+etc.%29%0D%0A%23%3E%0D%0A+%0D%0A%23region+%2D%2D-+Hide+the+console+window+%2D%2D-%0D%0AAdd-Type+-Name+Window+-Namespace+Console+-MemberDefinition+%27%0D%0A++++%5BDllImport%28%22kernel32.dll%22%29%5D%0D%0A++++public+static+extern+IntPtr+GetConsoleWindow%28%29%3B%0D%0A++++%5BDllImport%28%22user32.dll%22%29%5D%0D%0A++++public+static+extern+bool+ShowWindow%28IntPtr+hWnd%2C+int+nCmdShow%29%3B%0D%0A%27%0D%0A%23+0+%3D+SW_HIDE%0D%0A%5BConsole.Window%5D%3A%3AShowWindow%28%5BConsole.Window%5D%3A%3AGetConsoleWindow%28%29%2C+0%29+%7C+Out-Null%0D%0A+%0D%0AAdd-Type+-AssemblyName+System.Windows.Forms%0D%0AAdd-Type+-AssemblyName+System.Drawing%0D%0A%23endregion%0D%0A+%0D%0A%23region+%2D%2D-+Config+%2D%2D-%0D%0A%24CompanyID+%3D+%22KIME%22%0D%0A%23endregion%0D%0A+%0D%0A%23region+%2D%2D-+Helper%3A+show+message+box+and+exit+%2D%2D-%0D%0Afunction+Show-ResultAndExit+%7B%0D%0A++++param%28%0D%0A++++++++%5Bstring%5D%24Message%2C%0D%0A++++++++%5Bstring%5D%24Title%2C%0D%0A++++++++%5BSystem.Windows.Forms.MessageBoxIcon%5D%24Icon%0D%0A++++%29%0D%0A++++%5BSystem.Windows.Forms.MessageBox%5D%3A%3AShow%28%0D%0A++++++++%24Message%2C%0D%0A++++++++%24Title%2C%0D%0A++++++++%5BSystem.Windows.Forms.MessageBoxButtons%5D%3A%3AOK%2C%0D%0A++++++++%24Icon%0D%0A++++%29+%7C+Out-Null%0D%0A++++exit%0D%0A%7D%0D%0A%23endregion%0D%0A+%0D%0A%23region+%2D%2D-+Get+Serial+Number+FIRST+%28bail+out+early+if+missing%29+%2D%2D-%0D%0Atry+%7B%0D%0A++++%24serial+%3D+%28Get-CimInstance+-ClassName+Win32_BIOS+-ErrorAction+Stop%29.SerialNumber%0D%0A%7D%0D%0Acatch+%7B%0D%0A++++Show-ResultAndExit+-Title+%22Rename+Failed%22+-Icon+Error+-Message+%22No+serial+number+found.+Unable+to+query+Win32_BIOS%3A%60n%24%28%24_.Exception.Message%29%22%0D%0A%7D%0D%0A+%0D%0Aif+%28%5Bstring%5D%3A%3AIsNullOrWhiteSpace%28%24serial%29+-or+%24serial+-match+%27%5E%28To+Be+Filled+By+O.E.M.%7CNone%7CSystem+Serial+Number%7C0%2B%29%24%27%29+%7B%0D%0A++++Show-ResultAndExit+-Title+%22Rename+Failed%22+-Icon+Error+-Message+%22No+serial+number+found.+Computer+name+was+NOT+changed.%22%0D%0A%7D%0D%0A+%0D%0A%24serialSuffix+%3D+if+%28%24serial.Length+-lt+7%29+%7B+%24serial+%7D+else+%7B+%24serial.Substring%28%24serial.Length+-+7%29+%7D%0D%0A%23endregion%0D%0A+%0D%0A%23region+%2D%2D-+Detect+Desktop+vs+Laptop+%2D%2D-%0D%0Afunction+Get-DeviceType+%7B%0D%0A+%0D%0A++++%24pcSystemType+%3D+%28Get-CimInstance+-ClassName+Win32_ComputerSystem+-ErrorAction+SilentlyContinue%29.PCSystemType%0D%0A++++%24chassisTypes+%3D+%28Get-CimInstance+-ClassName+Win32_SystemEnclosure+-ErrorAction+SilentlyContinue%29.ChassisTypes%0D%0A++++%24hasBattery+++%3D+%5Bbool%5D%28Get-CimInstance+-ClassName+Win32_Battery+-ErrorAction+SilentlyContinue%29%0D%0A+%0D%0A++++%24laptopChassis+%3D+%40%288%2C+9%2C+10%2C+11%2C+12%2C+14%2C+18%2C+21%2C+30%2C+31%2C+32%29%0D%0A+%0D%0A++++%24votes+%3D+%40%28%29%0D%0A+%0D%0A++++if+%28%24pcSystemType+-eq+2%29+%7B+%24votes+%2B%3D+%22LT%22+%7D%0D%0A++++elseif+%28%24pcSystemType+-eq+1%29+%7B+%24votes+%2B%3D+%22DT%22+%7D%0D%0A+%0D%0A++++if+%28%24chassisTypes%29+%7B%0D%0A++++++++%24match+%3D+%24chassisTypes+%7C+Where-Object+%7B+%24laptopChassis+-contains+%24_+%7D%0D%0A++++++++if+%28%24match%29+%7B+%24votes+%2B%3D+%22LT%22+%7D+else+%7B+%24votes+%2B%3D+%22DT%22+%7D%0D%0A++++%7D%0D%0A+%0D%0A++++if+%28%24hasBattery%29+%7B+%24votes+%2B%3D+%22LT%22+%7D%0D%0A+%0D%0A++++if+%28%24votes.Count+-eq+0%29+%7B%0D%0A++++++++return+%24null%0D%0A++++%7D%0D%0A+%0D%0A++++%24ltCount+%3D+%28%24votes+%7C+Where-Object+%7B+%24_+-eq+%22LT%22+%7D%29.Count%0D%0A++++%24dtCount+%3D+%28%24votes+%7C+Where-Object+%7B+%24_+-eq+%22DT%22+%7D%29.Count%0D%0A+%0D%0A++++if+%28%24ltCount+-ge+%24dtCount%29+%7B+return+%22LT%22+%7D+else+%7B+return+%22DT%22+%7D%0D%0A%7D%0D%0A+%0D%0A%24deviceType+%3D+Get-DeviceType%0D%0A%24deviceTypeWasDefaulted+%3D+%24false%0D%0A+%0D%0Aif+%28-not+%24deviceType%29+%7B%0D%0A++++%24deviceType+%3D+%22DT%22%0D%0A++++%24deviceTypeWasDefaulted+%3D+%24true%0D%0A%7D%0D%0A%23endregion%0D%0A+%0D%0A%23region+%2D%2D-+Build+and+Apply+New+Computer+Name+%2D%2D-%0D%0A%24newName+%3D+%22%24CompanyID-%24deviceType-%24serialSuffix%22%0D%0A+%0D%0A%24warnings+%3D+%40%28%29%0D%0Aif+%28%24newName.Length+-gt+15%29+%7B%0D%0A++++%24warnings+%2B%3D+%22%27%24newName%27+exceeds+15+characters+and+may+not+be+NetBIOS-compatible.%22%0D%0A%7D%0D%0Aif+%28%24deviceTypeWasDefaulted%29+%7B%0D%0A++++%24warnings+%2B%3D+%22Could+not+automatically+determine+device+type+%E2%80%94+defaulted+to+DT+%28Desktop%29.%22%0D%0A%7D%0D%0A+%0D%0A%24oldName+%3D+%24env%3ACOMPUTERNAME%0D%0A+%0D%0Atry+%7B%0D%0A++++Rename-Computer+-NewName+%24newName+-Force+-ErrorAction+Stop%0D%0A%7D%0D%0Acatch+%7B%0D%0A++++Show-ResultAndExit+-Title+%22Rename+Failed%22+-Icon+Error+-Message+%22Failed+to+rename+computer%3A%60n%24%28%24_.Exception.Message%29%22%0D%0A%7D%0D%0A+%0D%0A%24resultMessage+%3D+%22Deployment+Completed+and+Computer+renamed+successfully.%60n%60n%22+%2B%0D%0A+++++++++++++++++%22Previous+name%3A+%24oldName%60n%22+%2B%0D%0A+++++++++++++++++%22New+name%3A++++++%24newName%60n%22+%2B%0D%0A+++++++++++++++++%22Device+type%3A+++%24deviceType%60n%60n%22+%2B%0D%0A+++++++++++++++++%22A+restart+is+required+for+the+change+to+take+effect.%22%0D%0A+%0D%0Aif+%28%24warnings.Count+-gt+0%29+%7B%0D%0A++++%24resultMessage+%2B%3D+%22%60n%60nWarnings%3A%60n-+%22+%2B+%28%24warnings+-join+%22%60n-+%22%29%0D%0A%7D%0D%0A+%0D%0AShow-ResultAndExit+-Title+%22Rename+Complete%22+-Icon+Information+-Message+%24resultMessage%0D%0A%23endregion%0D%0A+%0D%0A&FirstLogonScriptType1=Ps1&AppLockerMode=Skip-->
 	<settings pass="offlineServicing"></settings>
 	<settings pass="windowsPE">
 		<component name="Microsoft-Windows-International-Core-WinPE" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS">
@@ -120,22 +120,94 @@ Set-ItemProperty -LiteralPath $key -Name 'ConfigureStartPins' -Value $json -Type
 		</File>
 		<File path="C:\Windows\Setup\Scripts\unattend-01.ps1">
 $ProgressPreference = 'SilentlyContinue'
-
-# Create C:\Temp if it doesn't already exist
-$TempPath = "C:\Temp"
-if (-not (Test-Path $TempPath)) {
-    New-Item -Path $TempPath -ItemType Directory -Force | Out-Null
-}
-
-$InstallerPath = Join-Path $TempPath "NinjaOneAgent-x86.msi"
-
-# Download the NinjaOne agent installer to C:\Temp
-Invoke-WebRequest -Uri "https://in-tekrity.rmmservices.net/ws/api/v2/generic-installer/NinjaOneAgent-x86.msi" -OutFile $InstallerPath
-
-# Run the installer from C:\Temp
-msiexec.exe -i $InstallerPath TOKENID="c87e9b7c-35b9-48d1-bcf5-46c6b5a6708a"
+Invoke-WebRequest -Uri "https://in-tekrity.rmmservices.net/ws/api/v2/generic-installer/NinjaOneAgent-x86.msi" -OutFile ".\NinjaOneAgent-x86.msi"
+msiexec.exe -i NinjaOneAgent-x86.msi TOKENID="c87e9b7c-35b9-48d1-bcf5-46c6b5a6708a"
 		</File>
 		<File path="C:\Windows\Setup\Scripts\unattend-02.ps1">
+Claude finished the response
+create a catchy word doc that says ATTENTION! 
+
+As of today MDT has been disabled. For OSD deployments we will now be using OSDCloud.
+
+Press F12 to boot into network boot and select OSDCloud - Production. Once selected you will receive a powershell prompt to select the CompanyID of the device you are imaging. If there is no CompanyID, then type Z and hit Enter. Press enter again confirming that the fixed disks on the device will be erased.
+
+After you start the process OSDCloud will download the latest Windows 11 25H2 installer, identify the device you are on and download/install the Drivers for your device as well as apply the latest patches.
+
+Once the deployment process is completed the device will reboot and login to Windows. After the windows log in completes OSDCloud will wrap up by renaming the computer and deploying the RMM agent. Your device name will rename itself upon reboot.
+
+RMM should create a local admin account depending on the CompanyID selected. If there are issues and a local admin account is not created you can temporarily use the Built-In Administrator account using the credentials below.
+
+Username - Administrator
+Password - OSDCloudD3pl0y1!
+
+YOU NEED TO CREATE A LOCAL ADMIN ACCOUNT AND DISABLE THE BUILT IN ADMIN ACCOUNT BEFORE THE DEVICE GOES INTO PRODUCTION/USE.
+
+Show more
+
+Assessed document formatting capability for technical content
+Assessed document formatting capability for technical content
+That number badges are stretched a bit oddly but overall it looks clean &#x2014; let me check page 2 before finalizing.
+
+
+Check rendered page 2
+Check rendered page 2
+Good, it splits cleanly (the pink credentials box just spills onto page 2, which is fine). Copying to outputs now.
+
+
+Ran a command, read a file
+Ran a command, read a file
+Here's the announcement doc &#x2014; big red ATTENTION banner up top, numbered step blocks walking through the OSDCloud deployment process, a highlighted box for the fallback Administrator credentials, and a bold black "required before production use" warning at the bottom.
+
+
+Osdcloud deployment announcement
+Document &#xB7; DOCX 
+Can you fit this on a single page?
+
+
+Strategized layout compression through spacing and font adjustments
+Strategized layout compression through spacing and font adjustments
+Now let me tighten spacing throughout &#x2014; banner, headers, step blocks, and font sizes.
+
+
+Ran 2 commands
+Ran 2 commands
+Now let's tighten the step blocks (title/body font sizes and spacing) and bodyPara/codeRun sizes.
+
+
+Tighten step block fonts and spacing
+Tighten step block fonts and spacing
+Now the bullet list items, note paragraph, and the local admin credentials box / final warning box.
+
+
+Ran 2 commands
+Ran 2 commands
+Now the final warning banner and the spacer paragraph before it.
+
+
+Tighten final warning banner
+Tighten final warning banner
+Also tighten the "RMM should automatically..." bodyPara before the credentials box, and step body texts sizes for step 2/3.
+
+
+Ran 2 commands
+Ran 2 commands
+Single page now. Let's view it to check the layout looks good.
+
+
+Check the single-page rendered document
+Check the single-page rendered document
+It fits neatly on a single page now, with everything still readable. Copying it to outputs.
+
+
+Ran a command, read a file
+Ran a command, read a file
+Fits on one page now, with plenty of room to spare.
+
+
+Osdcloud deployment announcement
+Document &#xB7; DOCX 
+When i run the script it closes the prompt screen and leaves the powershell windows open. I want it to show the prompt screen and close powershell until Ok it clicked
+
 &lt;#
 .SYNOPSIS
     Detects Desktop vs Laptop via WMI/CIM, then renames the computer:
@@ -226,32 +298,167 @@ catch {
     throw "Failed to rename computer: $($_.Exception.Message)"
 }
 #endregion
+Show more
 
-#region --- Completion Notice (Popup) ---
-try {
-    $wshell = New-Object -ComObject WScript.Shell
-    $message = "The computer has been renamed to $newName.`n`nOSDCloud has finished its deployment cycle. You may reboot to apply the new computer name immediately or sit back and relax while RMM completes the configuration for you.`n`nThank you for your patience and cooperation, we hope you enjoyed the Automation.`n`n-Much Love, InTekrity Ops Team"
+Architected GUI message box solution with hidden console window
+Architected GUI message box solution with hidden console window
+Here's the updated script &#x2014; it hides the PowerShell console window immediately on launch, does all the work silently in the background, then shows a message box with the results. The window won't close until you click OK.
 
-    # Popup with icon (64 = Information) and buttons (0 = OK only)
-    # Timeout of 60 seconds &#x2014; auto-dismisses so it never blocks unattended/RMM execution indefinitely
-    $wshell.Popup($message, 60, "OSDCloud - Deployment Completed", 64 + 0) | Out-Null
-}
-catch {
-    # Fallback to console if popup fails (e.g., running in a session with no desktop interaction, like some SYSTEM contexts)
-    Write-Host -ForegroundColor Cyan "The computer has been renamed to $newName."
-    Write-Host -ForegroundColor Cyan "OSDCloud has finished its deployment cycle. You may reboot to apply the new computer name immediately or sit back and relax while RMM completes the configuration for you."
-    Write-Host -ForegroundColor Cyan "Thank you for your patience and cooperation, we hoped you enjoyed the Automation -Much Love InTekrity Ops Team"
+
+Ran 2 commands, created a file, read a file
+Ran 2 commands, created a file, read a file
+Two changes did the trick:
+
+Console hidden immediately &#x2014; a small GetConsoleWindow/ShowWindow P/Invoke call at the top hides the PowerShell window as soon as the script starts, so the user never sees the console flash.
+Result shown as a message box, not console output &#x2014; every Write-Host status message is now rolled into a single System.Windows.Forms.MessageBox. The script calls exit right after .Show() returns, so the process (and the hidden console) only terminates once the user clicks OK.
+A couple of notes on behavior:
+
+Errors (missing serial, rename failure) now pop their own message box with an error icon and title "Rename Failed," instead of throwing to a console no one sees.
+Success shows old name, new name, device type, and any warnings (oversized NetBIOS name, defaulted device type) all in one dialog.
+Since the console is hidden but not closed until exit, if you're kicking this off from RMM as a scheduled task/deployment step, make sure whatever launches it doesn't itself wait synchronously in a way that blocks on a hidden window &#x2014; you may want -WindowStyle Hidden on the invocation too, though it's technically redundant now.
+
+Rename-Computer-Silent.ps1
+ 
+
+
+
+
+
+Claude is AI and can make mistakes. Please double-check responses.
+&lt;#
+.SYNOPSIS
+    Detects Desktop vs Laptop via WMI/CIM, then renames the computer:
+    MGE-DeviceType-Last7OfSerial  (e.g., MGE-LT-1234567)
+    Runs unattended in the background &#x2014; console window is hidden &#x2014; and
+    reports the result in a message box. The script (and window) will not
+    exit until the user clicks OK.
+ 
+.NOTES
+    Run as Administrator. Requires a restart (handled separately) to apply the new computer name.
+    Designed for RMM/ZTI deployment (NinjaOne, N-central, OSDCloud, etc.)
+#&gt;
+ 
+#region --- Hide the console window ---
+Add-Type -Name Window -Namespace Console -MemberDefinition '
+    [DllImport("kernel32.dll")]
+    public static extern IntPtr GetConsoleWindow();
+    [DllImport("user32.dll")]
+    public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+'
+# 0 = SW_HIDE
+[Console.Window]::ShowWindow([Console.Window]::GetConsoleWindow(), 0) | Out-Null
+ 
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+#endregion
+ 
+#region --- Config ---
+$CompanyID = "KIME"
+#endregion
+ 
+#region --- Helper: show message box and exit ---
+function Show-ResultAndExit {
+    param(
+        [string]$Message,
+        [string]$Title,
+        [System.Windows.Forms.MessageBoxIcon]$Icon
+    )
+    [System.Windows.Forms.MessageBox]::Show(
+        $Message,
+        $Title,
+        [System.Windows.Forms.MessageBoxButtons]::OK,
+        $Icon
+    ) | Out-Null
+    exit
 }
 #endregion
-
-#region --- Keep Console Window Open ---
-# Failsafe so the window doesn't vanish the instant the script ends, even if the
-# calling process/task would otherwise auto-close it. Only runs in an interactive console.
-if ($Host.Name -eq 'ConsoleHost') {
-    Write-Host ""
-    Write-Host -ForegroundColor Cyan "Press Enter to close this window..."
-    Read-Host | Out-Null
+ 
+#region --- Get Serial Number FIRST (bail out early if missing) ---
+try {
+    $serial = (Get-CimInstance -ClassName Win32_BIOS -ErrorAction Stop).SerialNumber
 }
+catch {
+    Show-ResultAndExit -Title "Rename Failed" -Icon Error -Message "No serial number found. Unable to query Win32_BIOS:`n$($_.Exception.Message)"
+}
+ 
+if ([string]::IsNullOrWhiteSpace($serial) -or $serial -match '^(To Be Filled By O.E.M.|None|System Serial Number|0+)$') {
+    Show-ResultAndExit -Title "Rename Failed" -Icon Error -Message "No serial number found. Computer name was NOT changed."
+}
+ 
+$serialSuffix = if ($serial.Length -lt 7) { $serial } else { $serial.Substring($serial.Length - 7) }
+#endregion
+ 
+#region --- Detect Desktop vs Laptop ---
+function Get-DeviceType {
+ 
+    $pcSystemType = (Get-CimInstance -ClassName Win32_ComputerSystem -ErrorAction SilentlyContinue).PCSystemType
+    $chassisTypes = (Get-CimInstance -ClassName Win32_SystemEnclosure -ErrorAction SilentlyContinue).ChassisTypes
+    $hasBattery   = [bool](Get-CimInstance -ClassName Win32_Battery -ErrorAction SilentlyContinue)
+ 
+    $laptopChassis = @(8, 9, 10, 11, 12, 14, 18, 21, 30, 31, 32)
+ 
+    $votes = @()
+ 
+    if ($pcSystemType -eq 2) { $votes += "LT" }
+    elseif ($pcSystemType -eq 1) { $votes += "DT" }
+ 
+    if ($chassisTypes) {
+        $match = $chassisTypes | Where-Object { $laptopChassis -contains $_ }
+        if ($match) { $votes += "LT" } else { $votes += "DT" }
+    }
+ 
+    if ($hasBattery) { $votes += "LT" }
+ 
+    if ($votes.Count -eq 0) {
+        return $null
+    }
+ 
+    $ltCount = ($votes | Where-Object { $_ -eq "LT" }).Count
+    $dtCount = ($votes | Where-Object { $_ -eq "DT" }).Count
+ 
+    if ($ltCount -ge $dtCount) { return "LT" } else { return "DT" }
+}
+ 
+$deviceType = Get-DeviceType
+$deviceTypeWasDefaulted = $false
+ 
+if (-not $deviceType) {
+    $deviceType = "DT"
+    $deviceTypeWasDefaulted = $true
+}
+#endregion
+ 
+#region --- Build and Apply New Computer Name ---
+$newName = "$CompanyID-$deviceType-$serialSuffix"
+ 
+$warnings = @()
+if ($newName.Length -gt 15) {
+    $warnings += "'$newName' exceeds 15 characters and may not be NetBIOS-compatible."
+}
+if ($deviceTypeWasDefaulted) {
+    $warnings += "Could not automatically determine device type &#x2014; defaulted to DT (Desktop)."
+}
+ 
+$oldName = $env:COMPUTERNAME
+ 
+try {
+    Rename-Computer -NewName $newName -Force -ErrorAction Stop
+}
+catch {
+    Show-ResultAndExit -Title "Rename Failed" -Icon Error -Message "Failed to rename computer:`n$($_.Exception.Message)"
+}
+ 
+$resultMessage = "Deployment Completed and Computer renamed successfully.`n`n" +
+                 "Previous name: $oldName`n" +
+                 "New name:      $newName`n" +
+                 "Device type:   $deviceType`n`n" +
+                 "A restart is required for the change to take effect."
+ 
+if ($warnings.Count -gt 0) {
+    $resultMessage += "`n`nWarnings:`n- " + ($warnings -join "`n- ")
+}
+ 
+Show-ResultAndExit -Title "Rename Complete" -Icon Information -Message $resultMessage
 #endregion
 		</File>
 		<File path="C:\Windows\Setup\Scripts\Specialize.ps1">
